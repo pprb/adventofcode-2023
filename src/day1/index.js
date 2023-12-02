@@ -1,3 +1,6 @@
+/* eslint-disable no-loop-func */
+/* eslint-disable no-restricted-globals */
+/* eslint-disable no-plusplus */
 const fs = require('fs');
 const readline = require('readline');
 
@@ -24,7 +27,7 @@ async function day1part1() {
   });
 }
 
-(async function day1part2() {
+async function day1part2() {
   let result = 0;
 
   const numbersString = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
@@ -45,6 +48,7 @@ async function day1part1() {
       // number -> add to lineNumbers
       if (!isNaN(c)) {
         lineNumbers += c;
+        stringBuffer = '';
       } else {
         // add to stringBuffer
         stringBuffer += c;
@@ -58,7 +62,15 @@ async function day1part1() {
           }
         } else {
           // clean previous car
-          stringBuffer = c;
+          if (stringBuffer === 'oni') {
+            stringBuffer = 'ni';
+          } else if (stringBuffer === 'threi') {
+            stringBuffer = 'ei';
+          } else if (stringBuffer === 'sevei') {
+            stringBuffer = 'ei';
+          } else {
+            stringBuffer = c;
+          }
         }
       }
     }
@@ -73,4 +85,53 @@ async function day1part1() {
     // console.log('file closed');
     console.log(`result: ${result}`);
   });
-}());
+}
+
+async function day1part2v2() {
+  const numbersString = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+  let result = 0;
+
+  const lineReader = readline.createInterface({
+    input: fs.createReadStream('./input.txt'),
+    crlfDelay: Infinity,
+  });
+
+  lineReader.on('line', (line) => {
+    console.log(`Line: ${line}`);
+    let lineNumbers = '';
+
+    for (let i = 0; i < line.length; i++) {
+      // console.log('i', i);
+      const c = line[i];
+      // number -> add to lineNumbers
+      if (!isNaN(c)) {
+        lineNumbers += c;
+      } else {
+        numbersString.some((n) => {
+          // console.log('n ', n);
+          // console.log('length:', n.length);
+          // console.log('value', line.substring(i, i + n.length));
+          if (n === line.substring(i, i + n.length)) {
+            lineNumbers += `${numbersString.indexOf(n) + 1}`;
+            return true;
+          }
+          return false;
+        });
+      }
+    }
+
+    console.log(`Line cleaned: ${lineNumbers}`);
+    console.log(lineNumbers[0] + lineNumbers[lineNumbers.length - 1]);
+    const value = parseInt(lineNumbers[0] + lineNumbers[lineNumbers.length - 1], 10);
+    result += value;
+  });
+
+  lineReader.on('close', () => {
+    // console.log('file closed');
+    console.log(`result: ${result}`);
+  });
+}
+
+// day1part1();
+// day1part2();
+day1part2v2();
